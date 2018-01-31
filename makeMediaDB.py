@@ -1,8 +1,8 @@
 import sqlite3 as s3
 
-mvGenres = ['Horror', 'Drama', 'Action', 'Comedy']
-bkGenres = ['Fiction', 'Non-Fiction']
-mcGenres = ['Pop', 'Classic', 'Rock', 'Rap']
+genres = {'Movie': [('Horror',), ('Comedy',), ('Action',), ('Drama',), ('Science Fiction',), ('Animated',)], 'Written': [('Fiction',), ('Non-Fiction',)], 'Music': [('Pop',), ('Classical',), ('Rock',), ('Rap',)]}
+
+formats = {'Movie': [('4K',), ('DVD',), ('VHS',)], 'Written': [('eBook',), ('Paperback',), ('Magazine',)], 'Music': [('mp4',), ('CD',), ('Record',)]}
 
 Class MediaDB:
 
@@ -12,16 +12,23 @@ Class MediaDB:
 		self.conn = s3.connect(connectionName)
 		#create cursor
 		self.c = self.conn.cursor()
+		self.makeTables
+		self.populateInfo
 
 	def makeTables(self):
-		#create tables:
-		#Series
-		c.execute("CREATE TABLE Series(s_id INTEGER PRIMARY KEY, series_name text UNIQUE)")
+		#create tables:	
+		if self.mType != 'Music':
+			#Series
+			c.execute("CREATE TABLE Series(s_id INTEGER PRIMARY KEY, series_name text UNIQUE)")
+			conn.commit()
+
+		#Items
+		c.execute("CREATE TABLE Items(m_id INTEGER PRIMARY KEY, title text, favorite integer DEFAULT 0, unused integer, fs_id integer DEFAULT 0, FOREIGN KEY(fs_id) REFERENCES Series(s_id))")
 		conn.commit()
 
-		#Movies
-		c.execute("CREATE TABLE Movies(m_id INTEGER PRIMARY KEY, title text, favorite integer DEFAULT 0, unwatched integer, fs_id integer DEFAULT 0, FOREIGN KEY(fs_id) REFERENCES Series(s_id))")
-		conn.commit()
+		if self.mType != 'Movie':
+			c.execute("ALTER TABLE Items ADD COLUMN author {text} DEFAULT {'Anonymous'}")
+			conn.commit()
 
 		#Genres
 		c.execute("CREATE TABLE Genres(g_id INTEGER PRIMARY KEY, genre_name text UNIQUE)")
@@ -39,14 +46,16 @@ Class MediaDB:
 		c.execute("CREATE TABLE Movie_on_a(fm_id integer, ff_id integer, FOREIGN KEY(fm_id) REFERENCES Movies(m_id), FOREIGN KEY(ff_id) REFERENCES Formats(f_id))")
 		conn.commit()
 
-#prepop genres
-genreList = [('Horror',), ('Comedy',), ('Action',), ('Drama',), ('Science Fiction',), ('Animated',)]
-c.executemany("INSERT INTO Genres(genre_name) Values (?)", genreList)
-conn.commit()
+	def populateInfo(self):
 
-#prepop formats
-formatList = [('4K',), ('DVD',), ('VHS',)]
-c.executemany("INSERT INTO Formats(format_name) Values (?)", formatList)
-conn.commit()
+		#prepop genres
+		genreList = genres[self.mType]
+		c.executemany("INSERT INTO Genres(genre_name) Values (?)", genreList)
+		conn.commit()
 
-conn.close()
+		#prepop formats
+		formatList = formats[self.mType]
+		c.executemany("INSERT INTO Formats(format_name) Values (?)", formatList)
+		conn.commit()
+
+		conn.close()
