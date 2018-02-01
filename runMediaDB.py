@@ -1,3 +1,5 @@
+from makeMediaDB import *
+
 #build config
 
 #read data from config
@@ -9,7 +11,22 @@ def __main__():
 		for line in f:
 			splitLine = line.strip().split(":")
 			if len(splitLine) == 2:
-				infoDict[splitLine[0]] = splitLine[1]
+				infoDict[splitLine[0].lower()] = splitLine[1].lower()
+	
+	if infoDict['owner'] == 'none':
+		infoDict['owner'] = requestOwner()
+
+	if infoDict['dbname'] == 'none':
+		infoDict['dbname'] = getDbName()
+		medType = getType()
+		#errorcheck dupe dbnames
+		currentDB = MediaDB(infoDict['owner'], connectionName=infoDict['dbname'], mediaType=medType)
+
+	makeMainPage(currentDB)
+
+	
+
+	
 
 
 #if config.name == None:

@@ -1,3 +1,29 @@
+from tkinter import *
+from tkinter import ttk
+from tkinter import messagebox
+from makeMediaDB import *
+import random
+
+def makeTclList(mvL):
+    mvStr = ""
+    mSize = len(mvL)
+    mLim = mSize-1
+    for i in range(mSize):
+        mvStr += "{"
+        mvStr += mvL[i]
+        mvStr += "}"
+        if i != mLim:
+            mvStr += " "
+    return mvStr
+
+def getInd(Listname, item):
+    i = 0
+    while i < len(Listname):
+        if Listname[i] == item:
+            return i
+        i += 1
+    return None
+
 class GenreFrame(ttk.Frame):
     def __init__(self, parent):
         super().__init__(parent, padding=5)

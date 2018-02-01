@@ -8,6 +8,7 @@ formats = {'Movie': [('4K',), ('DVD',), ('VHS',)], 'Written': [('eBook',), ('Pap
 Class MediaDB:
 
 	def __init__(self, owner, connectionName='testmoviedb.db', mediaType='movie'):
+		self.name = connectionName
 		self.deity = owner
 		self.mType = mediaType
 		#start connection
@@ -17,6 +18,12 @@ Class MediaDB:
 		self.makeTables
 		self.populateInfo
 		self.conn.close()
+
+	def getName(self):
+		return self.name
+
+	def getType(self):
+		return self.mType
 
 	def makeTables(self):
 		#create tables:	
