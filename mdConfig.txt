@@ -2,6 +2,8 @@ owner:none
 
 dbname:none
 
+medtype:none
+
 bgcolor:none
 
 font:none
