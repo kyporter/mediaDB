@@ -1,8 +1,8 @@
 import sqlite3 as s3
 
-genres = {'Movie': [('Horror',), ('Comedy',), ('Action',), ('Drama',), ('Science Fiction',), ('Animated',)], 'Written': [('Fiction',), ('Non-Fiction',)], 'Music': [('Pop',), ('Classical',), ('Rock',), ('Rap',)]}
+genres = {'movie': [('Horror',), ('Comedy',), ('Action',), ('Drama',), ('Science Fiction',), ('Animated',)], 'book': [('Fiction',), ('Non-Fiction',)], 'music': [('Pop',), ('Classical',), ('Rock',), ('Rap',)]}
 
-formats = {'Movie': [('4K',), ('DVD',), ('VHS',)], 'Written': [('eBook',), ('Paperback',), ('Magazine',)], 'Music': [('mp4',), ('CD',), ('Record',)]}
+formats = {'movie': [('4K',), ('DVD',), ('VHS',)], 'book': [('eBook',), ('Paperback',), ('Magazine',)], 'music': [('mp4',), ('CD',), ('Record',)]}
 
 
 Class MediaDB:
@@ -10,7 +10,7 @@ Class MediaDB:
 	def __init__(self, owner, connectionName='testmoviedb.db', mediaType='movie'):
 		self.name = connectionName
 		self.deity = owner
-		self.mType = mediaType
+		self.mType = mediaType.lower()
 		#start connection
 		self.conn = s3.connect(connectionName)
 		#create cursor
@@ -27,7 +27,7 @@ Class MediaDB:
 
 	def makeTables(self):
 		#create tables:	
-		if self.mType != 'Music':
+		if self.mType != 'music':
 			#Series
 			c.execute("CREATE TABLE Series(s_id INTEGER PRIMARY KEY, series_name text UNIQUE)")
 			conn.commit()
@@ -36,7 +36,7 @@ Class MediaDB:
 		c.execute("CREATE TABLE Items(i_id INTEGER PRIMARY KEY, title text, favorite integer DEFAULT 0, unused integer, fs_id integer DEFAULT 0, FOREIGN KEY(fs_id) REFERENCES Series(s_id))")
 		conn.commit()
 
-		if self.mType != 'Movie':
+		if self.mType != 'movie':
 			c.execute("CREATE TABLE Authors(a_id INTEGER PRIMARY KEY, name text")
 			c.execute("ALTER TABLE Items ADD COLUMN fa_id {integer} DEFAULT {0}, FOREIGN KEY(fa_id) REFERENECES Authors(a_id)")
 			conn.commit()

@@ -1,4 +1,5 @@
 from makeMediaDB import *
+from guiFunctions import *
 
 #build config
 
@@ -18,11 +19,16 @@ def __main__():
 
 	if infoDict['dbname'] == 'none':
 		infoDict['dbname'] = getDbName()
-		medType = getType()
-		#errorcheck dupe dbnames
-		currentDB = MediaDB(infoDict['owner'], connectionName=infoDict['dbname'], mediaType=medType)
 
-	makeMainPage(currentDB)
+	if infoDict['medtype'] == 'none':
+		infoDict['medtype'] = getType()
+	
+	#errorcheck dupe dbnames
+	currentDB = MediaDB(infoDict['owner'], connectionName=infoDict['dbname'], mediaType=infoDict['medtype'])
+
+	newInstance = RunApp(currentDB)
+
+
 
 	
 
