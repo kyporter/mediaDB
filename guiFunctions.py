@@ -3,7 +3,6 @@ from tkinter import ttk
 from tkinter import messagebox
 from makeMediaDB import *
 from guiClasses import *
-import random
 
 import sqlite3 as s3
 
@@ -32,7 +31,7 @@ def articleSort(titleList):
     finList = [ i[1]+i[0] for i in newList ]
     return finList
 
-class RunApp:
+class AppManager:
 	
 	def __init__(self, dbInst):
 		self.DBNAME = dbInst.getName()
@@ -190,14 +189,7 @@ class RunApp:
 		self.theApp.master.columnconfigure(0, weight=1)
 		self.theApp.mainloop()
 
-	def pickRandomTitle(self):
-		curTitleList = self.theApp.localTitleList
-		if len(curTitleList) == 0:
-		    errMsg = "What do you expect me to pick from? Change options so there are some choices available"
-		    messagebox.showerror(message=errMsg)
-		    return
-		picked = random.choice(curTitleList)
-		self.theApp.displayInfo(picked)
+
 
 
 

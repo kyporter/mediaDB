@@ -26,7 +26,7 @@ def __main__():
 	#errorcheck dupe dbnames
 	currentDB = MediaDB(infoDict['owner'], connectionName=infoDict['dbname'], mediaType=infoDict['medtype'])
 
-	newInstance = RunApp(currentDB)
+	newInstance = AppManager(currentDB)
 
 
 
