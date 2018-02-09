@@ -5,7 +5,7 @@ genres = {'movie': [('Horror',), ('Comedy',), ('Action',), ('Drama',), ('Science
 formats = {'movie': [('4K',), ('DVD',), ('VHS',)], 'book': [('eBook',), ('Paperback',), ('Magazine',)], 'music': [('mp4',), ('CD',), ('Record',)]}
 
 
-Class MediaDB:
+class MediaDB:
 
 	def __init__(self, owner, connectionName='testmoviedb.db', mediaType='movie'):
 		self.name = connectionName

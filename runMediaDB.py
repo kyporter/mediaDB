@@ -50,16 +50,20 @@ def Run():
 			splitLine = line.strip().split(":")
 			if len(splitLine) == 2:
 				infoDict[splitLine[0].lower()] = splitLine[1].lower()
-	
-	if infoDict['owner'] == 'none' || infoDict['dbname'] == 'none' || infoDict['medtype'] == 'none':
+#FIXME:
+	print(infoDict['owner'], infoDict['dbname'], infoDict['medtype'])	
+
+
+	if infoDict['owner'] == 'none' or infoDict['dbname'] == 'none' or infoDict['medtype'] == 'none':
 		infoWnd = GetInfoWindow(infoDict)
 		while infoWnd != None:
 			time.sleep(.1)
 		infoDict['dbname'] = infoDict['owner'].upper() + infoDict['medtype'].lower() + ".db"
 	#errorcheck dupe dbnames
 		if os.path.isfile(infoDict['dbname']):
-			continue
-		MediaDB(infoDict['owner'], connectionName=infoDict['dbname'], mediaType=infoDict['medtype'])
+			pass
+		else:
+			MediaDB(infoDict['owner'], connectionName=infoDict['dbname'], mediaType=infoDict['medtype'])
 
 	newInstance = AppManager(infoDict['dbname'], infoDict['medtype'])
 	newInstance.makeMainPage()

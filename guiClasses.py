@@ -195,14 +195,14 @@ class InfoFrame(ttk.Frame):
 
 		#media-type display decisions
 		self.showseries = False
-		if !parent.caller.isMusic():
+		if not parent.caller.isMusic():
 			self.showseries = True
-		    self.serieslab = ttk.Label(self, text="In Series:", style='InfoFrame.TLabel')
-		    self.seriesvar = StringVar()
-		    self.seriesinfo = ttk.Label(self, textvariable=self.seriesvar, style='InfoFrame.TLabel')
+			self.serieslab = ttk.Label(self, text="In Series:", style='InfoFrame.TLabel')
+			self.seriesvar = StringVar()
+			self.seriesinfo = ttk.Label(self, textvariable=self.seriesvar, style='InfoFrame.TLabel')
 			self.rows += 1
 		self.showauthor = False
-		if !parent.caller.isMovie():
+		if not parent.caller.isMovie():
 			self.showauthor = True
 			self.authorlab = ttk.Label(self, text="By:", style='InfoFrame.TLabel')
 			self.authorvar = StringVar()
@@ -386,7 +386,7 @@ class App(ttk.Frame):
 		self.conn.commit()
 		fmtNameTuples = self.cur.fetchall()
 
-		if !self.caller.isMusic():
+		if not self.caller.isMusic():
 			self.cur.execute("SELECT series_name FROM Series JOIN Items ON s_id=fs_id WHERE i_id=?", (mID,))
 			self.conn.commit()
 			srsRes = self.cur.fetchone()
@@ -395,7 +395,7 @@ class App(ttk.Frame):
 				srsName = srsRes[0]
 			infofrm.popSeries(srsName)
 		
-		if !self.caller.isMovie():
+		if not self.caller.isMovie():
 			self.cur.execute("SELECT name FROM Authors JOIN Items ON a_id=fa_id WHERE i_id=?", (mID,))
 			self.conn.commit()
 			autRes = self.cur.fetchone()
@@ -435,13 +435,13 @@ class App(ttk.Frame):
 		g3 = self.genreframe.g3box.get()
 
 		sID = 0
-		if !self.caller.isMusic():
+		if not self.caller.isMusic():
 			series = self.srsframe.srsbox.get()
 			if series != "":
 				sID = self.caller.seriesDict[series]
 		
 		aID = 0
-		if !self.caller.isMovie():
+		if not self.caller.isMovie():
 			author = self.authframe.authbox.get()
 			if author != "":
 				aID = self.caller.authorDict[author]
@@ -695,10 +695,10 @@ class AddApp(ttk.Frame):
 		self.chkbxframe.grid(column=1, row=1, sticky=N+W+S+E)
 		self.frmtframe = FormatFrame(self)
 		self.frmtframe.grid(column=0, row=3, rowspan=2, sticky=N+W+S+E)
-		if !self.caller.isMusic():
+		if not self.caller.isMusic():
 			self.srsframe = SeriesFrame(self, True)
 			self.srsframe.grid(column=1, row=3, sticky=N+W+S+E)
-		if !self.caller.isMovie():	
+		if not self.caller.isMovie():	
 			self.authframe = AuthorFrame(self, True)
 			self.authframe.grid(column=1, row=4, sticky=N+W+S+E)
 		self.addbtn = ttk.Button(self, text="Update Database Now", command=self.updateDB)
@@ -745,13 +745,13 @@ class AddApp(ttk.Frame):
 		fave = self.chkbxframe.favvar.get()
 		unwatch = self.chkbxframe.unwvar.get()
 		sID = 0
- 		if !self.caller.isMusic():
+ 		if not self.caller.isMusic():
 			sID = self.caller.seriesDict[self.srsframe.srsbox.get()]
 			if self.caller.isMovie():
 				self.cur.execute("INSERT INTO Items(title, favorite, unwatched, fs_id) Values(?, ?, ?, ?)", (title, fave, unwatch, sID))
 				self.conn.commit()
 		aID = 0
-		if !self.caller.isMovie():
+		if not self.caller.isMovie():
 			aID = self.caller.authorDict[self.authframe.authbox.get()]
 			if self.caller.isMusic():
 				self.cur.execute("INSERT INTO Items(title, favorite, unwatched, fa_id) Values(?, ?, ?, ?)", (title, fave, unwatch, aID))
@@ -801,11 +801,11 @@ class EditApp(ttk.Frame):
 		self.frmtframe = FormatFrame(self)
 		self.setFormats()
 		self.frmtframe.grid(column=0, row=3, rowspan=2, sticky=N+W+S+E)
-		if !self.caller.isMusic():
+		if not self.caller.isMusic():
 			self.srsframe = SeriesFrame(self, True)
 			self.setSeries()
 			self.srsframe.grid(column=1, row=3, sticky=N+W+S+E)
-		if !self.caller.isMovie():
+		if not self.caller.isMovie():
 			self.authframe = AuthorFrame(self, True)
 			self.setAuthor()
 			self.authframe.grid(column=1, row=4, sticky=N+W+S+E)
@@ -956,10 +956,10 @@ class EditApp(ttk.Frame):
 				self.cur.execute("DELETE FROM Item_on_a WHERE ff_id=? AND fi_id=?", (f, self.selectedMID))
 				self.conn.commit()
 		sID = 0
-		if !self.caller.isMusic():
+		if not self.caller.isMusic():
 			sID = self.caller.seriesDict[self.srsframe.srsbox.get()]
 		aID = 0
-		if !self.caller.isMovie():
+		if not self.caller.isMovie():
 			aID = self.caller.authorDict[self.authframe.authbox.get()]
 		fave = self.chkbxframe.favvar.get()
 		unwatch = self.chkbxframe.unwvar.get()
