@@ -566,47 +566,6 @@ class AddTitleFrame(ttk.Frame):
 	def editTitle(self):
 		self.tbox.state(['!readonly'])
 
-#FIXME: this doesn't appear to be used anywhere...ooops
-class AddGenreFrame(ttk.Frame):
-	def __init__(self, parent):
-		super().__init__(parent)
-		self.parent = parent
-		self.deity = parent.caller
-		self.conn = self.deity.passConnection()
-		self.cur = self.deity.passCursor()
-		self.columnconfigure(0, weight=1)
-		self.columnconfigure(1, weight=1)
-		self.rowconfigure(0, weight=1)     
-
-		self.ngnbox = ttk.Entry(self)
-		self.addngnbutton = ttk.Button(self, text="+Genre", command=self.updateGenres)
-
-		self.ngnbox.grid(column=1, row=0, pady=5, sticky=W+E)
-		self.addngnbutton.grid(column=0, row=0, pady=5)
-        
-	def updateGenres(self):
-		newGenre = self.ngnbox.get().capitalize()
-		if len(newGenre.split()) > 1:
-			glist = newGenre.strip().split()
-			newGenre = ''
-			for word in glist:
-				word = word.capitalize()
-				newGenre += word
-				newGenre += " "
-		newGenre.strip()
-		self.cur.execute("SELECT g_id FROM Genres WHERE genre_name=?", (newGenre,))
-		self.conn.commit()
-		if self.cur.fetchone() != None:
-			return    
-		self.cur.execute("INSERT INTO Genres Value(?)", (newGenre,))
-		self.cur.execute("SELECT g_id FROM Genres WHERE genre_name=?", (newGenre,))
-		self.conn.commit()
-		gID = self.cur.fetchone()
-		self.deity.genreDict[newGenre] = gID
-		#print(newGenre)
-		self.deity.updateGenreList()
-		self.box.configure(values=Genres)
-
 #Defines series display for Main and Add/Edit pages
 #change=False for main page, True for Add/Edit
 class SeriesFrame(ttk.Frame):
@@ -660,7 +619,6 @@ class SeriesFrame(ttk.Frame):
 class GenreListFrame(ttk.Frame):
 	def __init__(self, parent):
 		super().__init__(parent)
-	#FIXME  self.parent = parent
 		self.deity = parent.caller
 		self.conn = self.deity.passConnection()
 		self.cur = self.deity.passCursor()
@@ -762,25 +720,26 @@ class AddApp(ttk.Frame):
 		self.caller.makeMainPage()
         
 	def updateDB(self):
+		medType = self.caller.MEDIATYPE
 		Genres = self.caller.getGenres()
 		title = self.adtlframe.tbox.get().strip()
-		#FIXME: make media-neutral
-		errmsg = "In order to update database, a movie MUST have: title, at least one genre, and at least one format"	
+		errmsg = "In order to update database, a %s MUST have: title, at least one genre, and at least one format" % medType	
 		if title == "":
 			messagebox.showerror(message=errmsg)
 			return
 		self.cur.execute("SELECT i_id FROM Items WHERE title=?", (title,))
 		self.conn.commit()
 		if self.cur.fetchone() != None:
-		#FIXME: make media-neutral
-			dupErrMsg = "This title is already in database.\nPlease add identifying information to tile, for example Title(Year) or Director's Title"
-			messagebox.showerror(dupErrMsg)
+			dupErrMsg = { "movie" : "This title is already in database.\nPlease add identifying information to title, for example Title(Year) or Director's Title", "book" : "This title is already in database. \nPlease add identifying information to title, for example Title(Published Year) or Special Edition Title", "music" : "This title is already in database. \nPlease add identifying information to title, for example Title(Remastered)"}
+			messagebox.showerror(dupErrMsg[medType])
 			return
 		genindex = self.genreframe.genrelistbox.curselection()
 		if len(genindex) == 0 or (len(genindex) == 1 and Genres[genindex[0]] == ""):
 			messagebox.showerror(message=errmsg)
 			return
-		#FIXME: add messagebox.askyesnocancel + handler: yes: continue, no: return, cancel: __main__()
+		#FIXME: add messagebox.askyesnocancel + handler: yes: continue, no: return, cancel: __main__() 
+		#may need to be tkMessagebox
+		doubleCheck = messagebox(type=messagebox.YESNOCANCEL, default=messagebox.NO, icon=messagebox.QUESTION, message="Do you want to add this item?", parent=self)
 		fmtindex = self.frmtframe.frmtbox.curselection()
 		if len(fmtindex) == 0:
 			messagebox.showerror(message=errmsg)
@@ -945,8 +904,8 @@ class EditApp(ttk.Frame):
 		self.authframe.authbox.current([autInd])
         
 	def updateDB(self):
-		#FIXME: make media neutral (errmsg)
-		errmsg = "In order to update database, a movie MUST have: title, at least one genre, and at least one format"
+		medType = self.caller.MEDIATYPE
+		errmsg = "In order to update database, a %s MUST have: title, at least one genre, and at least one format" % medType
 		title = self.selectedTitle
 		if self.tlframe.tbox.instate(['!readonly']):
 			title = self.tlframe.tbox.get().strip()
@@ -955,12 +914,12 @@ class EditApp(ttk.Frame):
 			if title == "":
 				messagebox.showerror(message=errmsg)
 				return
-			self.cur.execute("SELECT m_id FROM Movies WHERE title=?", (title,))
+			self.cur.execute("SELECT i_id FROM Items WHERE title=?", (title,))
 			self.conn.commit()
 			result = self.cur.fetchone()
 			if result != None and result[0] != self.selectedMID:
-				dupErrMsg = "This title is already in database. \nPlease add identifying information, for example Title(Year) or Director's Title"
-				messagebox.showerror(errMsg)
+				dupErrMsg = { "movie" : "This title is already in database.\nPlease add identifying information to title, for example Title(Year) or Director's Title", "book" : "This title is already in database. \nPlease add identifying information to title, for example Title(Published Year) or Special Edition Title", "music" : "This title is already in database. \nPlease add identifying information to title, for example Title(Remastered)"}
+				messagebox.showerror(dupErrMsg[medType])
 				return
 			del self.caller.titleDict[self.selectedTitle]
 			self.selectedTitle = title
@@ -975,13 +934,13 @@ class EditApp(ttk.Frame):
 		if len(fmtindex) == 0:
 			messagebox.showerror(message=errmsg)
 			return
-		self.cur.execute("SELECT fg_id FROM Movie_is_a WHERE fm_id=?", (self.selectedMID,))
+		self.cur.execute("SELECT fg_id FROM Item_is_a WHERE fi_id=?", (self.selectedMID,))
 		self.conn.commit()
 		gRes = self.cur.fetchall()
 		oldgIDs = []
 		for r in gRes:
 			oldgIDs.append(r[0])
-		self.cur.execute("SELECT ff_id FROM Movie_on_a WHERE fm_id=?", (self.selectedMID,))
+		self.cur.execute("SELECT ff_id FROM Item_on_a WHERE fi_id=?", (self.selectedMID,))
 		self.conn.commit()
 		fRes = self.cur.fetchall()
 		oldfIDs = []
