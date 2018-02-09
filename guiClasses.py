@@ -22,7 +22,7 @@ def makeTclList(mvL):
 	return mvStr
 
 #finds item in list and returns index
-#FIXME: this may be a builtin List method
+#there is a builtin List method, but it raises valueError instead of returning None
 def getInd(Listname, item):
 	i = 0
 	while i < len(Listname):
