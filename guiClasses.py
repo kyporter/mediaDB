@@ -378,7 +378,7 @@ class App(ttk.Frame):
 		infoDisp.title(title)
 		infoDisp.minsize(50,50)
 		infofrm = InfoFrame(infoDisp, stylechc='InfoFrame.TFrame')
-		mID = self.caller.getTitleDict()[title]
+		mID = self.caller.titleDict()[title]
 		self.cur.execute("SELECT genre_name FROM Genres JOIN Item_is_a ON g_id=fg_id WHERE fi_id=?", (mID,))
 		self.conn.commit()
 		genNameTuples = self.cur.fetchall()

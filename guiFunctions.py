@@ -3,13 +3,7 @@ from tkinter import ttk
 from tkinter import messagebox
 from makeMediaDB import *
 from guiClasses import *
-
 import sqlite3 as s3
-
-global DBNAME = 'testmoviedb.db'
-global MEDIATYPE = 'movie'
-global running = 0
-global myapp
 
 
 def isArticle(word):
@@ -125,21 +119,6 @@ class AppManager:
 	def updateAuthorList(self):
 		self.Authors = sorted(self.authorDict)
 
-	def getTitleDict(self):
-		return self.titleDict
-
-	def getGenreDict(self):
-		return self.genreDict
-
-	def getFormatDict(self):
-		return self.formatDict
-
-	def getSeriesDict(self):
-		return self.seriesDict
-
-	def getAuthorDict(self):
-		return self.authorDict
-
 	def getTitles(self):
 		return self.Titles
 
@@ -167,7 +146,7 @@ class AppManager:
 	def addNewItem(self):
 		self.storedApp = self.theApp
 		self.theApp = AddApp(self,m_id)
-		self.theApp.master.title("MyMediaDB Add {} Page", MEDIATYPE.capitalize())
+		self.theApp.master.title("MyMediaDB Add %s Page" % self.MEDIATYPE.capitalize())
 		self.theApp.master.minsize(100,500)
 		self.theApp.master.rowconfigure(0, weight=1)
 		self.theApp.master.columnconfigure(0, weight=1)
