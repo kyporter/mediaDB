@@ -18,6 +18,21 @@ Class MediaDB:
 		self.makeTables
 		self.populateInfo
 		self.conn.close()
+		self.makeConfig()
+
+	def makeConfig(self):
+		title = self.deity + self.mType.upper() + "config.txt"
+		with open(title, "r") as f:
+			info = f.read()
+			if len(info) != 0:
+				return
+		with open(title, "w") as f:
+			f.write("owner:%s\n\n" % self.deity)
+			f.write("dbname:%s\n\n" % self.name)
+			f.write("medtype:%s\n\n" % self.mType)
+			#FIXME:f.write("bgcolor:none\n\n")
+			#FIXME:f.write("font:none")
+
 
 	def getName(self):
 		return self.name
