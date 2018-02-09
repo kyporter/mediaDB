@@ -128,7 +128,7 @@ class ButtonFrame(ttk.Frame):
 		self.columnconfigure(2, weight=1)
 		self.rowconfigure(0, weight=1)
 		self.pkRand = ttk.Button(self, text="Random Choice", command=parent.pickRandomTitle)
-		self.addNM = ttk.Button(self, text="Add New Movie", command=parent.caller.addNewItem)
+		self.addNM = ttk.Button(self, text="Add New %s" % parent.caller.MEDIATYPE, command=parent.caller.addNewItem)
 		self.editMv = ttk.Button(self, text="Edit Selection", command=parent.caller.editItem)
 		self.pkRand.grid(column=0, row=0, padx=15)
 		self.addNM.grid(column=1, row=0, padx=15)
