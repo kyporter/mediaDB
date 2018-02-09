@@ -33,14 +33,14 @@ def articleSort(titleList):
 
 class AppManager:
 	
-	def __init__(self, dbInst):
-		self.DBNAME = dbInst.getName()
-		self.MEDIATYPE = dbInst.getType()
+	def __init__(self, dbname, mtype):
+		self.DBNAME = dbname
+		self.MEDIATYPE = mtype
 		self.running = 0
 		self.storedApp = None
 		self.startConnection()
 		self.makeDicts()
-		self.makeMainPage()
+		#FIXME? self.makeMainPage()
 		self.theStyle = ttk.Style()
 		self.theStyle.theme_use('classic')
 		self.theStyle.configure('.', font=('gothic', 12))

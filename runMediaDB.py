@@ -2,6 +2,7 @@ from makeMediaDB import *
 from guiFunctions import *
 from tkinter import *
 from tkinter import ttk
+import os.path
 import time
 
 #build config
@@ -42,7 +43,7 @@ class GetInfoWindow(ttk.Frame):
 
 
 
-def __main__():
+def Run():
 	infoDict = {}
 	with open("mdConfig.txt", "r") as f:
 		for line in f:
@@ -55,17 +56,18 @@ def __main__():
 		while infoWnd != None:
 			time.sleep(.1)
 		infoDict['dbname'] = infoDict['owner'].upper() + infoDict['medtype'].lower() + ".db"
-
-	
 	#errorcheck dupe dbnames
-	currentDB = MediaDB(infoDict['owner'], connectionName=infoDict['dbname'], mediaType=infoDict['medtype'])
+		if os.path.isfile(infoDict['dbname']):
+			continue
+		MediaDB(infoDict['owner'], connectionName=infoDict['dbname'], mediaType=infoDict['medtype'])
 
-	newInstance = AppManager(currentDB)
+	newInstance = AppManager(infoDict['dbname'], infoDict['medtype'])
 	newInstance.makeMainPage()
 
 
 
-	
+if __name__ == '__main__':
+	Run()	
 
 	
 
