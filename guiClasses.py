@@ -312,11 +312,6 @@ class App(ttk.Frame):
 		super().__init__(master, padding=5)
 		self.caller = boss
 		self.localTitleList = boss.getTitles()
-		self.titleDict = boss.getTitleDict()
-		self.formatDict = boss.getFormatDict()
-		self.genreDict = boss.getGenreDict()
-		self.authorDict = boss.getAuthorDict()
-		self.seriesDict = boss.getSeriesDict()
 		self.cur = boss.passCursor()
 		self.conn = boss.passConnection()
 		self.columnconfigure(0, weight=1)
@@ -373,6 +368,7 @@ class App(ttk.Frame):
 		if title != "":
 			self.displayInfo(title)
 
+	#making tkinter interface happy by redirecting through a 4-arg method
 	def runUpdate(self, blah1, blah2, blah3):
 		self.updateTitleList()
         
@@ -394,7 +390,7 @@ class App(ttk.Frame):
 			self.cur.execute("SELECT series_name FROM Series JOIN Items ON s_id=fs_id WHERE i_id=?", (mID,))
 			self.conn.commit()
 			srsRes = self.cur.fetchone()
-			srsName = "This movie stands alone"
+			srsName = "This %s stands alone" % self.caller.MEDIATYPE
 			if srsRes != None:
 				srsName = srsRes[0]
 			infofrm.popSeries(srsName)
@@ -442,13 +438,13 @@ class App(ttk.Frame):
 		if !self.caller.isMusic():
 			series = self.srsframe.srsbox.get()
 			if series != "":
-				sID = self.seriesDict[series]
+				sID = self.caller.seriesDict[series]
 		
 		aID = 0
 		if !self.caller.isMovie():
 			author = self.authframe.authbox.get()
 			if author != "":
-				aID = self.authorDict[author]
+				aID = self.caller.authorDict[author]
 
 		formats = self.frmtframe.frmtbox.curselection()
 		fave = self.chkbxframe.favvar.get()
@@ -457,14 +453,14 @@ class App(ttk.Frame):
 		fIDs = []
 		if len(formats) > 0:
 			for f in formats:
-				fIDs.append(self.formatDict[self.frmtframe.Formats[f]])
+				fIDs.append(self.caller.formatDict[self.frmtframe.Formats[f]])
 		gIDs = []
 		if g1 != "":
-			gIDs.append(self.genreDict[g1])
+			gIDs.append(self.caller.genreDict[g1])
 		if g2 != "":
-			gIDs.append(self.genreDict[g2])
+			gIDs.append(self.caller.genreDict[g2])
 		if g3 != "":
-			gIDs.append(self.genreDict[g3])
+			gIDs.append(self.caller.genreDict[g3])
 
 		searchString = "SELECT title FROM Items"
 		substrJn = []
@@ -677,11 +673,6 @@ class AddApp(ttk.Frame):
 	def __init__(self,boss,master=None):
 		super().__init__(master, padding=5)
 		self.caller = boss
-		#self.titleDict = boss.getTitleDict()
-		#self.formatDict = boss.getFormatDict()
-		#self.genreDict = boss.getGenreDict()
-		#self.authorDict = boss.getAuthorDict()
-		#self.seriesDict = boss.getSeriesDict()
 		self.cur = boss.passCursor()
 		self.conn = boss.passConnection()
 		self.columnconfigure(0, weight=1)
@@ -785,11 +776,6 @@ class EditApp(ttk.Frame):
 	def __init__(self, boss,m_id,master=None):
 		super().__init__(master, padding=5)
 		self.caller = boss
-		#self.titleDict = boss.getTitleDict()
-		#self.formatDict = boss.getFormatDict()
-		#self.genreDict = boss.getGenreDict()
-		#self.authorDict = boss.getAuthorDict()
-		#self.seriesDict = boss.getSeriesDict()
 		self.selectedMID = m_id
 		self.selectedTitle = ""
 		self.columnconfigure(0, weight=1)
