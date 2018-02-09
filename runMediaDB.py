@@ -10,11 +10,13 @@ import time
 #read data from config
 config = "mdConfig.txt"
 
-medDict = {1: "book", 2: "movie", 3: "music"}
+#FIXME:medDict = {1: "book", 2: "movie", 3: "music"}
 		
 class GetInfoWindow(ttk.Frame):
-	def __init__(self,infodict,master=None):
+	def __init__(self,infodict,grandmaster=None,master=None):
 		super().__init__(master)
+		self.m = master
+		self.gm = grandmaster
 		self.columnconfigure(0, weight=1)
 		self.columnconfigure(1, weight=1)
 		self.columnconfigure(2, weight=1)
@@ -27,18 +29,29 @@ class GetInfoWindow(ttk.Frame):
 		self.namevar = StringVar()
 		self.namebox = ttk.Entry(self, textvariable=self.namevar, style='InfoFrame.TLabel')
 		self.typelab = ttk.Label(self, text="Select Media Type:")
-		self.typevar = IntVar()
-		self.bookbutton = ttk.Radiobutton(self, text="Book", variable=self.typevar, value=1)
-		self.moviebutton = ttk.Radiobutton(self, text="Movie", variable=self.typevar, value=2)
-		self.musicbutton = ttk.Radiobutton(self, text="Music", variable=self.typevar, value=3)
+		self.typevar = StringVar()
+		self.bookbutton = ttk.Radiobutton(self, text="Book", variable=self.typevar, value="book")
+		self.moviebutton = ttk.Radiobutton(self, text="Movie", variable=self.typevar, value="movie")
+		self.musicbutton = ttk.Radiobutton(self, text="Music", variable=self.typevar, value="music")
 		self.confbutton = ttk.Button(self, text="Create New Database", command=self.sendInfo)
-		self.placeItems()
-		#self.mainloop()
+		self.grid(column=0, row=0, sticky=N+W+S+E)
+		self.namelab.grid(column=0, row=0, sticky=N+W+S+E)
+		self.namebox.grid(column=1, row=0, columnspan=2, sticky=N+W+S+E)
+		self.typelab.grid(column=0, row=1, columnspan=3)
+		self.bookbutton.grid(column=0, row=2, sticky=N+W+S+E)
+		self.moviebutton.grid(column=1, row=2, sticky=N+W+S+E)
+		self.musicbutton.grid(column=2, row=2, sticky=N+W+S+E)
+		self.confbutton.grid(column=1, row=3, sticky=N+W+S+E)
+		self.mainloop()
 
 	def sendInfo(self):
-		self.dict['owner'] = self.namevar
-		self.dict['medtype'] = medDict[self.typevar]
-		self.destroy
+		self.dict['owner'] = self.namevar.get()
+		self.dict['medtype'] = self.typevar.get()
+		print(self.dict['owner'])
+		print(self.dict['medtype'])
+		self.gm.destroy()
+		#self.gm.destroy()
+
 
 
 
@@ -55,11 +68,16 @@ def Run():
 
 
 	if infoDict['owner'] == 'none' or infoDict['dbname'] == 'none' or infoDict['medtype'] == 'none':
-		infoWnd = GetInfoWindow(infoDict)
-		while infoWnd != None:
+		realroot = Tk()
+		realroot.withdraw()
+		temproot = Toplevel(realroot)
+		infoWnd = GetInfoWindow(infoDict, grandmaster=realroot, master=temproot)
+		if infoDict['owner'] == 'none' or infoDict['dbname'] == 'none' or infoDict['medtype'] == 'none':
 			time.sleep(.1)
+#FIXME:sanity check for blank info in window
 		infoDict['dbname'] = infoDict['owner'].upper() + infoDict['medtype'].lower() + ".db"
 	#errorcheck dupe dbnames
+		#realroot.destroy()
 		if os.path.isfile(infoDict['dbname']):
 			pass
 		else:
