@@ -45,7 +45,7 @@ class AppManager:
 
 
 	def startConnection(self):
-		self.conn = s3.connect(DBNAME)
+		self.conn = s3.connect(self.DBNAME)
 		self.c = self.conn.cursor()
 		self.running = 1		
 

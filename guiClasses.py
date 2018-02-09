@@ -218,19 +218,19 @@ class InfoFrame(ttk.Frame):
 		self.genreinfo.grid(column=1, row=1)
 		i = 2
 		if self.showseries:
-        	self.serieslab.grid(column=0, row=i)
-        	self.seriesinfo.grid(column=1, row=i)
-			i++
+			self.serieslab.grid(column=0, row=i)
+			self.seriesinfo.grid(column=1, row=i)
+			i += 1
 		if self.showauthor:
 			self.authorlab.grid(column=0, row=i)
 			self.authorinfo.grid(column=1, row=i)
-			i++
+			i += 1
 		self.formatlab.grid(column=0, row=i)
 		self.formatinfo.grid(column=1, row=i)
-		i++
+		i += 1
 		self.favLab.grid(column=0, row=i)
 		self.unwLab.grid(column=1, row=i)
-		i++
+		i += 1
 		self.ackbut.grid(column=0, row=i, columnspan=2)
                
 	def popGenre(self, gList):
@@ -258,7 +258,7 @@ class InfoFrame(ttk.Frame):
 		self.unwvar.set(displayUnwatched[self.mediatype])
 
 #Not used in pages yet
-class AuthorFrame(ttk.frame):
+class AuthorFrame(ttk.Frame):
 	def __init__(self, parent, change=False):
 		super().__init__(parent)
 		self.parent = parent
@@ -745,7 +745,7 @@ class AddApp(ttk.Frame):
 		fave = self.chkbxframe.favvar.get()
 		unwatch = self.chkbxframe.unwvar.get()
 		sID = 0
- 		if not self.caller.isMusic():
+		if not self.caller.isMusic():
 			sID = self.caller.seriesDict[self.srsframe.srsbox.get()]
 			if self.caller.isMovie():
 				self.cur.execute("INSERT INTO Items(title, favorite, unwatched, fs_id) Values(?, ?, ?, ?)", (title, fave, unwatch, sID))
@@ -896,21 +896,22 @@ class EditApp(ttk.Frame):
 		if self.tlframe.tbox.instate(['!readonly']):
 			title = self.tlframe.tbox.get().strip()
 			if title == self.selectedTitle:
-				continue
-			if title == "":
+				pass
+			elif title == "":
 				messagebox.showerror(message=errmsg)
 				return
-			self.cur.execute("SELECT i_id FROM Items WHERE title=?", (title,))
-			self.conn.commit()
-			result = self.cur.fetchone()
-			if result != None and result[0] != self.selectedMID:
-				dupErrMsg = { "movie" : "This title is already in database.\nPlease add identifying information to title, for example Title(Year) or Director's Title", "book" : "This title is already in database. \nPlease add identifying information to title, for example Title(Published Year) or Special Edition Title", "music" : "This title is already in database. \nPlease add identifying information to title, for example Title(Remastered)"}
-				messagebox.showerror(dupErrMsg[medType])
-				return
-			del self.caller.titleDict[self.selectedTitle]
-			self.selectedTitle = title
-			self.caller.titleDict[title] = self.selectedMID
-			self.caller.updateTitleList()
+			else:
+				self.cur.execute("SELECT i_id FROM Items WHERE title=?", (title,))
+				self.conn.commit()
+				result = self.cur.fetchone()
+				if result != None and result[0] != self.selectedMID:
+					dupErrMsg = { "movie" : "This title is already in database.\nPlease add identifying information to title, for example Title(Year) or Director's Title", "book" : "This title is already in database. \nPlease add identifying information to title, for example Title(Published Year) or Special Edition Title", "music" : "This title is already in database. \nPlease add identifying information to title, for example Title(Remastered)"}
+					messagebox.showerror(dupErrMsg[medType])
+					return
+				del self.caller.titleDict[self.selectedTitle]
+				self.selectedTitle = title
+				self.caller.titleDict[title] = self.selectedMID
+				self.caller.updateTitleList()
 		genindex = self.genreframe.genrelistbox.curselection()
 		Genres = self.caller.getGenres()
 		if len(genindex) == 0 or (len(genindex) == 1 and Genres[genindex[0]] == ""):
