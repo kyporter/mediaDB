@@ -13,23 +13,23 @@ global myapp
 
 
 def isArticle(word):
-    articles = ["A", "The", "An", "Stephen King's", "Wes Craven's"]
-    if word in articles:
-        return True
-    return False
+	articles = ["A", "The", "An", "Stephen King's", "Wes Craven's"]
+	if word in articles:
+		return True
+	return False
 
 def articleSort(titleList):
-    alessList = []
-    for item in titleList:
-        itemsplit = item.split(maxsplit=1)
-        if len(itemsplit) == 2 and isArticle(itemsplit[0]):
-            newitem = (itemsplit[1],itemsplit[0]+" ")
-        else:
-            newitem = (item, "")
-        alessList.append(newitem)
-    newList = sorted(alessList, key=lambda word: word[0])
-    finList = [ i[1]+i[0] for i in newList ]
-    return finList
+	alessList = []
+	for item in titleList:
+		itemsplit = item.split(maxsplit=1)
+		if len(itemsplit) == 2 and isArticle(itemsplit[0]):
+			newitem = (itemsplit[1],itemsplit[0]+" ")
+		else:
+			newitem = (item, "")
+		alessList.append(newitem)
+	newList = sorted(alessList, key=lambda word: word[0])
+	finList = [ i[1]+i[0] for i in newList ]
+	return finList
 
 class AppManager:
 	
@@ -37,6 +37,7 @@ class AppManager:
 		self.DBNAME = dbInst.getName()
 		self.MEDIATYPE = dbInst.getType()
 		self.running = 0
+		self.storedApp = None
 		self.startConnection()
 		self.makeDicts()
 		self.makeMainPage()
@@ -164,7 +165,8 @@ class AppManager:
 		return self.MEDIATYPE == 'music'
 
 	def addNewItem(self):
-		self.theApp = AddApp(self)
+		self.storedApp = self.theApp
+		self.theApp = AddApp(self,m_id)
 		self.theApp.master.title("MyMediaDB Add {} Page", MEDIATYPE.capitalize())
 		self.theApp.master.minsize(100,500)
 		self.theApp.master.rowconfigure(0, weight=1)
@@ -172,16 +174,20 @@ class AppManager:
 		self.theApp.mainloop()
 
 	def makeMainPage(self):
-		self.theApp = MainApp(self)
-    	self.theApp.master.title("MyMediaDB Main Page")
-    	self.theApp.master.minsize(100,500)
-    	self.theApp.master.rowconfigure(0, weight=1)
-    	self.theApp.master.columnconfigure(0, weight=1)
-    	self.theApp.mainloop()
+		if self.storedApp == None:
+			self.theApp = MainApp(self)
+			self.theApp.master.title("MyMediaDB Main Page")
+			self.theApp.master.minsize(100,500)
+			self.theApp.master.rowconfigure(0, weight=1)
+			self.theApp.master.columnconfigure(0, weight=1)
+		else:
+			self.theApp = self.storedApp
+		self.theApp.mainloop()
 
 	def editItem(self):
 		title = self.theApp.tlistframe.getSelected()
 		m_id = self.movieDict[title]
+		self.storedApp = self.theApp
 		self.theApp = EditApp(self,m_id)
 		self.theApp.master.title("MyMediaDB Edit Information Page")
 		self.theApp.master.minsize(100,500)
