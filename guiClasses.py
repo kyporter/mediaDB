@@ -2,7 +2,7 @@ from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
 from makeMediaDB import *
-from guiFunctions import *
+import guiFunctions as gF
 import random
 
 #used for displayInfo
@@ -159,7 +159,9 @@ class TitlesFrame(ttk.Frame):
 		self.countlab.grid(column=0, row=1, columnspan=2, sticky=W+E)
 		self.showinfobtn.grid(column=0, row=2, columnspan=2)
         
-	def popTitles(self):
+	def popTitles(self,tL=None):
+		if tL != None:
+			self.mvL = tL
 		mvStr = makeTclList(self.mvL)
 		self.titlelistvar.set(mvStr) 
 		countstring = " results displayed"
@@ -363,32 +365,46 @@ class App(ttk.Frame):
 			if ind == None:
 				pass
 			self.frmtframe.frmtbox.selection_set(ind)
-		self.\chkbxframe.favvar.set(storedInfo['fave'])
+		self.chkbxframe.favvar.set(storedInfo['fave'])
 		self.chkbxframe.unwvar.set(storedInfo['unused'])
-		self.keysrchframe.kwdbox.set(storedInfo['keyword'])
+		self.keysrchframe.keyword.set(storedInfo['keyword'])
 		if not self.caller.isMusic():
 			self.srsframe.srsbox.set(storedInfo['series'])
 		if not self.caller.isMovie():
 			self.authframe.authbox.set(storedInfo['author'])
+		self.updateTitleList()
 
         
 	def makeMainSubFrames(self):
 		self.genreframe = GenreFrame(self)
 		self.genreframe.grid(column=0, row=0, sticky=N+W+S+E)
-		self.srsframe = SeriesFrame(self)
-		self.srsframe.grid(column=0, row=1, sticky=N+W+S+E)
+		i = 1
+
+		if not self.caller.isMusic():
+			self.srsframe = SeriesFrame(self)
+			self.srsframe.grid(column=0, row=i, sticky=N+W+S+E)
+			i += 1
+		if not self.caller.isMovie():
+			self.authframe = AuthorFrame(self)
+			self.authframe.grid(column=0, row=i, sticky=N+W+S+E)
+			i += 1
+
 		self.chkbxframe = CheckbuttonFrame(self)
-		self.chkbxframe.grid(column=0, row=2, sticky=N+W+S+E)        
+		self.chkbxframe.grid(column=0, row=i, sticky=N+W+S+E)
+		i += 1        
 		self.frmtframe = FormatFrame(self)
-		self.frmtframe.grid(column=0, row=3, sticky=N+W+S+E)        
+		self.frmtframe.grid(column=0, row=i, sticky=N+W+S+E)    
+		i += 1    
 		self.keysrchframe = KeywordFrame(self)
-		self.keysrchframe.grid(column=0, row=4, sticky=N+W+S+E)        
+		self.keysrchframe.grid(column=0, row=i, sticky=N+W+S+E)
+		i += 1        
 		self.buttonframe = ButtonFrame(self)
 		self.buttonframe.editMv.state(["disabled"])
-		self.buttonframe.grid(column=0, row=5, columnspan=2, sticky=N+W+S+E)        
+		self.buttonframe.grid(column=0, row=i, columnspan=2, sticky=N+W+S+E)  
+      
 		self.tlistframe = TitlesFrame(self, self.localTitleList)
 		self.tlistframe.showinfobtn.state(["disabled"])
-		self.tlistframe.grid(column=1, row=0, rowspan=5, sticky=N+W+S+E)   
+		self.tlistframe.grid(column=1, row=0, rowspan=i, sticky=N+W+S+E)   
         
 	#if no title selected, edit and show info buttons can't be used
 	def titleAction(self, event=None):
@@ -565,8 +581,9 @@ class App(ttk.Frame):
 			self.localTitleList = []
 		else:
 			tempList = [ m[0] for m in results ]
-			self.localTitleList = articleSort(tempList)
+			self.localTitleList = gF.articleSort(tempList)
 		self.buttonframe.editMv.state(["disabled"])
+		print(self.localTitleList)
 		self.tlistframe.popTitles(self.localTitleList)
 
 	def pickRandomTitle(self):
@@ -707,10 +724,9 @@ class GenreListFrame(ttk.Frame):
 
 #Controls Add page
 class AddApp(ttk.Frame):
-	def __init__(self,boss,m_id=None,master=None):
+	def __init__(self,boss,master=None):
 		super().__init__(master, padding=5)
 		self.caller = boss
-		self.savedmid = m_id
 		self.cur = boss.passCursor()
 		self.conn = boss.passConnection()
 		self.columnconfigure(0, weight=1)
@@ -747,7 +763,7 @@ class AddApp(ttk.Frame):
 	def cancel(self):
 #FIXME: Retain selection on main page
 		print("calling to end addApp")
-		self.caller.makeMainPage(self.savedmid)
+		self.caller.makeMainPage()
         
 	def updateDB(self):
 		medType = self.caller.MEDIATYPE
@@ -822,6 +838,8 @@ class EditApp(ttk.Frame):
 	def __init__(self, boss,m_id,master=None):
 		super().__init__(master, padding=5)
 		self.caller = boss
+		self.cur = boss.passCursor()
+		self.conn = boss.passConnection()
 		self.selectedMID = m_id
 		self.selectedTitle = ""
 		self.columnconfigure(0, weight=1)
@@ -861,8 +879,7 @@ class EditApp(ttk.Frame):
 		self.canclbtn.grid(column=1, row=5)
         
 	def cancel(self):
-	#FIXME: Retain selection on main page
-		__main__()        
+		self.caller.makeMainPage()        
         
 	def setTitle(self):
 		self.cur.execute("SELECT title FROM Items WHERE i_id=?", (self.selectedMID,))
@@ -927,7 +944,7 @@ class EditApp(ttk.Frame):
 		self.conn.commit()
 		Authors = self.caller.getAuthors()
 		autRes = self.cur.fetchone()
-		if aurRes != None:
+		if autRes != None:
 			autInd = getInd(Authors, autRes[0])
 		else:
 			return

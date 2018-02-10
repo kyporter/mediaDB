@@ -166,7 +166,7 @@ class AppManager:
 
 	def editItem(self):
 		title = self.theApp.tlistframe.getSelected()
-		m_id = self.movieDict[title]
+		m_id = self.titleDict[title]
 		self.storedInfo = self.theApp.storeAppInfo()
 		self.theApp = EditApp(self,m_id)
 		self.theApp.master.title("MyMediaDB Edit Information Page")
