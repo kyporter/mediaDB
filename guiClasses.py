@@ -6,7 +6,7 @@ from guiFunctions import *
 import random
 
 #used for displayInfo
-displayUnwatched = {'movie': "This video hasn't been watched yet!", 'book': "This hasn't been read yet!", 'music': "This hasn't been listened to yet!"}
+displayUnused = {'movie': "This video hasn't been watched yet!", 'book': "This hasn't been read yet!", 'music': "This hasn't been listened to yet!"}
 
 #makes TCL-parseable list from regular list
 def makeTclList(mvL):
@@ -58,7 +58,7 @@ class GenreFrame(ttk.Frame):
 		self.g2box.grid(column=1, row=1, pady=10, sticky=W+E)
 		self.g3box.grid(column=1, row=2, pady=10, sticky=W+E)
 
-#Defines unwatched and favorite buttons for both main and add/edit pages 
+#Defines unused and favorite buttons for both main and add/edit pages 
 #vertical=False for main page, True for add/edit
 class CheckbuttonFrame(ttk.Frame):
 	def __init__(self, parent, vertical=False):
@@ -72,7 +72,7 @@ class CheckbuttonFrame(ttk.Frame):
 		if vertical:
 			self.rowconfigure(1, weight=1)
 		self.favlab = ttk.Label(self, text="Favorite")
-		self.unwtlab = ttk.Label(self, text="Unwatched")
+		self.unwtlab = ttk.Label(self, text="Unused")
 		self.favvar = IntVar()
 		self.unwvar = IntVar()
 		self.favbox = ttk.Checkbutton(self, variable=self.favvar, onvalue=1, offvalue=0)
@@ -259,7 +259,7 @@ class InfoFrame(ttk.Frame):
 		self.favvar.set("This is a favorite!")
     
 	def dispUnwatch(self):
-		self.unwvar.set(displayUnwatched[self.mediatype])
+		self.unwvar.set(displayUnused[self.mediatype])
 
 #Not used in pages yet
 class AuthorFrame(ttk.Frame):
@@ -338,6 +338,39 @@ class App(ttk.Frame):
 		self.chkbxframe.favbox.configure(command=self.updateTitleList)
 		self.tlistframe.showinfobtn.configure(command=self.titleDisplay)
 		self.keysrchframe.keyword.trace("w", self.runUpdate)
+
+	def storeAppInfo(self):
+		storedInfo = {}
+		storedInfo['genres'] = [self.genreframe.g1box.get(), self.genreframe.g2box.get(), self.genreframe.g3box.get()]
+		fInds = self.frmtframe.frmtbox.curselection()
+		storedInfo['formats'] = [ self.frmtframe.Formats[f] for f in fInds ]
+		storedInfo['fave'] = self.chkbxframe.favvar.get() 
+		storedInfo['unused'] = self.chkbxframe.unwvar.get()
+		storedInfo['keyword'] = self.keysrchframe.kwdbox.get()
+		if not self.caller.isMusic():
+			storedInfo['series'] = self.srsframe.srsbox.get()
+		if not self.caller.isMovie():
+			storedInfo['author'] = self.authframe.authbox.get()
+		return storedInfo
+
+
+	def restoreApp(self, storedInfo):
+		self.genreframe.g1box.set(storedInfo['genres'][0])
+		self.genreframe.g2box.set(storedInfo['genres'][1])
+		self.genreframe.g3box.set(storedInfo['genres'][2])
+		for fName in storedInfo['formats']:
+			ind = getInd(self.frmtframe.Formats, fName)
+			if ind == None:
+				pass
+			self.frmtframe.frmtbox.selection_set(ind)
+		self.\chkbxframe.favvar.set(storedInfo['fave'])
+		self.chkbxframe.unwvar.set(storedInfo['unused'])
+		self.keysrchframe.kwdbox.set(storedInfo['keyword'])
+		if not self.caller.isMusic():
+			self.srsframe.srsbox.set(storedInfo['series'])
+		if not self.caller.isMovie():
+			self.authframe.authbox.set(storedInfo['author'])
+
         
 	def makeMainSubFrames(self):
 		self.genreframe = GenreFrame(self)
@@ -408,7 +441,7 @@ class App(ttk.Frame):
 				autName = autRes[0]
 			infofrm.popAuthor(autName)
 
-		self.cur.execute("SELECT favorite, unwatched FROM Items WHERE i_id=?", (mID,))
+		self.cur.execute("SELECT favorite, unused FROM Items WHERE i_id=?", (mID,))
 		self.conn.commit()
 		res = self.cur.fetchone()
 		fave = 0
@@ -488,7 +521,7 @@ class App(ttk.Frame):
 			substr = " favorite=1"
 			substrWhr.append(substr)
 		if unwatch == 1:
-			substr = " unwatched=1"
+			substr = " unused=1"
 			substrWhr.append(substr)
 		if kword != "":
 			kwordAlt = kword.capitalize()
@@ -525,9 +558,9 @@ class App(ttk.Frame):
 				else:
 					searchString += ")"
 		#print(searchString)
-		c.execute(searchString)
-		conn.commit()
-		results = c.fetchall()
+		self.cur.execute(searchString)
+		self.conn.commit()
+		results = self.cur.fetchall()
 		if len(results) == 0:
 			self.localTitleList = []
 		else:
@@ -674,9 +707,10 @@ class GenreListFrame(ttk.Frame):
 
 #Controls Add page
 class AddApp(ttk.Frame):
-	def __init__(self,boss,master=None):
+	def __init__(self,boss,m_id=None,master=None):
 		super().__init__(master, padding=5)
 		self.caller = boss
+		self.savedmid = m_id
 		self.cur = boss.passCursor()
 		self.conn = boss.passConnection()
 		self.columnconfigure(0, weight=1)
@@ -712,7 +746,8 @@ class AddApp(ttk.Frame):
         
 	def cancel(self):
 #FIXME: Retain selection on main page
-		self.caller.makeMainPage()
+		print("calling to end addApp")
+		self.caller.makeMainPage(self.savedmid)
         
 	def updateDB(self):
 		medType = self.caller.MEDIATYPE
@@ -736,10 +771,12 @@ class AddApp(ttk.Frame):
 		#may need to be tkMessagebox
 		#doubleCheck = messagebox(type=tkMessageBox.YESNOCANCEL, default=tkMessageBox.NO, icon=tkMessageBox.QUESTION, message="Do you want to add this item?", parent=self)
 		doubleCheck = messagebox.askyesnocancel(default=messagebox.NO, message="Do you want to add this item? \n If not, select 'No' to return to main menu \n or 'Cancel' to continue editing", parent=self)
-		if doubleCheck == "no":
+		if doubleCheck == False:
 			self.caller.makeMainPage()
-		elif doubleCheck == "cancel":
+		elif doubleCheck == None:
 			return
+		print(doubleCheck)
+		print("Continuing to add info")
 		fmtindex = self.frmtframe.frmtbox.curselection()
 		if len(fmtindex) == 0:
 			messagebox.showerror(message=errmsg)
@@ -757,15 +794,15 @@ class AddApp(ttk.Frame):
 		if not self.caller.isMusic():
 			sID = self.caller.seriesDict[self.srsframe.srsbox.get()]
 			if self.caller.isMovie():
-				self.cur.execute("INSERT INTO Items(title, favorite, unwatched, fs_id) Values(?, ?, ?, ?)", (title, fave, unwatch, sID))
+				self.cur.execute("INSERT INTO Items(title, favorite, unused, fs_id) Values(?, ?, ?, ?)", (title, fave, unwatch, sID))
 				self.conn.commit()
 		aID = 0
 		if not self.caller.isMovie():
 			aID = self.caller.authorDict[self.authframe.authbox.get()]
 			if self.caller.isMusic():
-				self.cur.execute("INSERT INTO Items(title, favorite, unwatched, fa_id) Values(?, ?, ?, ?)", (title, fave, unwatch, aID))
+				self.cur.execute("INSERT INTO Items(title, favorite, unused, fa_id) Values(?, ?, ?, ?)", (title, fave, unwatch, aID))
 			else:
-				self.cur.execute("INSERT INTO Items(title, favorite, unwatched, fa_id, fs_id) Values(?, ?, ?, ?, ?)", (title, fave, unwatch, aID, sID))
+				self.cur.execute("INSERT INTO Items(title, favorite, unused, fa_id, fs_id) Values(?, ?, ?, ?, ?)", (title, fave, unwatch, aID, sID))
 			self.conn.commit()
 		self.cur.execute("SELECT i_id FROM Items WHERE title=?", (title,))
 		self.conn.commit()
@@ -773,11 +810,11 @@ class AddApp(ttk.Frame):
 		self.caller.titleDict[title] = m_id
 		self.caller.updateTitleList()
 		for gid in gIDs:
-			c.execute("INSERT INTO Item_is_a(fg_id, fi_id) Values(?, ?)", (gid, m_id))
-			conn.commit()
+			self.cur.execute("INSERT INTO Item_is_a(fg_id, fi_id) Values(?, ?)", (gid, m_id))
+			self.conn.commit()
 		for fid in fIDs:
-			c.execute("INSERT INTO Item_on_a(ff_id, fi_id) Values(?, ?)", (fid, m_id))
-			conn.commit()
+			self.cur.execute("INSERT INTO Item_on_a(ff_id, fi_id) Values(?, ?)", (fid, m_id))
+			self.conn.commit()
 		self.caller.makeMainPage()
 
 #Controls Edit page
@@ -851,7 +888,7 @@ class EditApp(ttk.Frame):
 		self.genreframe.genrelistbox.selection_set(ind)
         
 	def setCheckbuttons(self):
-		self.cur.execute("SELECT favorite, unwatched FROM Items WHERE i_id=?", (self.selectedMID,))
+		self.cur.execute("SELECT favorite, unused FROM Items WHERE i_id=?", (self.selectedMID,))
 		self.conn.commit()
 		infores = self.cur.fetchone()
 		if infores == None:
@@ -975,11 +1012,11 @@ class EditApp(ttk.Frame):
 		unwatch = self.chkbxframe.unwvar.get()
 
 		if self.caller.isMovie():
-			self.cur.execute("UPDATE Items SET title=?, favorite=?, unwatched=?, fs_id=? WHERE i_id=?", (title, fave, unwatch, sID, self.selectedMID))
+			self.cur.execute("UPDATE Items SET title=?, favorite=?, unused=?, fs_id=? WHERE i_id=?", (title, fave, unwatch, sID, self.selectedMID))
 		elif self.caller.isMusic():
-			self.cur.execute("UPDATE Items SET title=?, favorite=?, unwatched=?, fa_id=? WHERE i_id=?", (title, fave, unwatch, aID, self.selectedMID))
+			self.cur.execute("UPDATE Items SET title=?, favorite=?, unused=?, fa_id=? WHERE i_id=?", (title, fave, unwatch, aID, self.selectedMID))
 		elif self.caller.isBook():
-			self.cur.execute("UPDATE Items SET title=?, favorite=?, unwatched=?, fa_id=?, fs_id=? WHERE i_id=?", (title, fave, unwatch, aID, sID, self.selectedMID))
+			self.cur.execute("UPDATE Items SET title=?, favorite=?, unused=?, fa_id=?, fs_id=? WHERE i_id=?", (title, fave, unwatch, aID, sID, self.selectedMID))
 		self.conn.commit()
 		self.caller.makeMainPage()       
 

@@ -31,7 +31,7 @@ class AppManager:
 		self.DBNAME = dbname
 		self.MEDIATYPE = mtype
 		self.running = 0
-		self.storedApp = None
+		self.storedInfo = None
 		self.startConnection()
 		self.makeDicts()
 		#FIXME? self.makeMainPage()
@@ -144,7 +144,7 @@ class AppManager:
 		return self.MEDIATYPE == 'music'
 
 	def addNewItem(self):
-		self.storedApp = self.theApp
+		self.storedInfo = self.theApp.storeAppInfo()
 		self.theApp = AddApp(self)
 		self.theApp.master.title("MyMediaDB Add %s Page" % self.MEDIATYPE.capitalize())
 		self.theApp.master.minsize(100,500)
@@ -153,26 +153,41 @@ class AppManager:
 		self.theApp.mainloop()
 
 	def makeMainPage(self):
-		if self.storedApp == None:
+		if self.storedInfo == None:
 			self.theApp = App(self)
 			self.theApp.master.title("MyMediaDB Main Page")
 			self.theApp.master.minsize(100,500)
 			self.theApp.master.rowconfigure(0, weight=1)
 			self.theApp.master.columnconfigure(0, weight=1)
 		else:
-			self.theApp = self.storedApp
+			self.theApp = App(self)
+			self.theApp.restoreApp(self.storedInfo)
 		self.theApp.mainloop()
 
 	def editItem(self):
 		title = self.theApp.tlistframe.getSelected()
 		m_id = self.movieDict[title]
-		self.storedApp = self.theApp
+		self.storedInfo = self.theApp.storeAppInfo()
 		self.theApp = EditApp(self,m_id)
 		self.theApp.master.title("MyMediaDB Edit Information Page")
 		self.theApp.master.minsize(100,500)
 		self.theApp.master.rowconfigure(0, weight=1)
 		self.theApp.master.columnconfigure(0, weight=1)
 		self.theApp.mainloop()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

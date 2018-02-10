@@ -50,10 +50,6 @@ class GetInfoWindow(ttk.Frame):
 		print(self.dict['owner'])
 		print(self.dict['medtype'])
 		self.gm.destroy()
-		#self.gm.destroy()
-
-
-#FIXME: unwatched => unused
 
 
 def Run():
@@ -71,6 +67,8 @@ def Run():
 		realroot = Tk()
 		realroot.withdraw()
 		temproot = Toplevel(realroot)
+		temproot.title("Getting Started")
+		temproot.minsize(100,100)
 		infoWnd = GetInfoWindow(infoDict, grandmaster=realroot, master=temproot)
 		if infoDict['owner'] == 'none' or infoDict['dbname'] == 'none' or infoDict['medtype'] == 'none':
 			time.sleep(.1)
