@@ -179,10 +179,10 @@ class TitlesFrame(ttk.Frame):
 
 #Defines show detail pop-up
 class InfoFrame(ttk.Frame):
-	def __init__(self,parent,stylechc=None):
+	def __init__(self,parent,boss,stylechc=None):
 		super().__init__(parent, style=stylechc)
-		self.parent = parent
-		self.mediatype = parent.caller.MEDIATYPE
+		self.caller = boss
+		self.mediatype = boss.MEDIATYPE
 		self.columnconfigure(0, weight=1)
 		self.columnconfigure(1, weight=3)
 		#guaranteed 5 rows: blank, format, genre, watched/fave, ack button
@@ -201,14 +201,14 @@ class InfoFrame(ttk.Frame):
 
 		#media-type display decisions
 		self.showseries = False
-		if not parent.caller.isMusic():
+		if not self.caller.isMusic():
 			self.showseries = True
 			self.serieslab = ttk.Label(self, text="In Series:", style='InfoFrame.TLabel')
 			self.seriesvar = StringVar()
 			self.seriesinfo = ttk.Label(self, textvariable=self.seriesvar, style='InfoFrame.TLabel')
 			self.rows += 1
 		self.showauthor = False
-		if not parent.caller.isMovie():
+		if not self.caller.isMovie():
 			self.showauthor = True
 			self.authorlab = ttk.Label(self, text="By:", style='InfoFrame.TLabel')
 			self.authorvar = StringVar()
@@ -430,8 +430,8 @@ class App(ttk.Frame):
 		infoDisp = Toplevel(self)
 		infoDisp.title(title)
 		infoDisp.minsize(50,50)
-		infofrm = InfoFrame(infoDisp, stylechc='InfoFrame.TFrame')
-		mID = self.caller.titleDict()[title]
+		infofrm = InfoFrame(infoDisp, self.caller, stylechc='InfoFrame.TFrame')
+		mID = self.caller.titleDict[title]
 		self.cur.execute("SELECT genre_name FROM Genres JOIN Item_is_a ON g_id=fg_id WHERE fi_id=?", (mID,))
 		self.conn.commit()
 		genNameTuples = self.cur.fetchall()
@@ -977,6 +977,7 @@ class EditApp(ttk.Frame):
 				self.caller.updateTitleList()
 		genindex = self.genreframe.genrelistbox.curselection()
 		Genres = self.caller.getGenres()
+		Formats = self.caller.getFormats()
 		if len(genindex) == 0 or (len(genindex) == 1 and Genres[genindex[0]] == ""):
 			messagebox.showerror(message=errmsg)
 			return
