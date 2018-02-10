@@ -45,18 +45,21 @@ class MediaDB:
 
 	def makeTables(self):
 		#create tables:	
+		#Items
+		self.c.execute("CREATE TABLE Items(i_id INTEGER PRIMARY KEY, title text, favorite integer DEFAULT 0, unused integer)")
+		self.conn.commit()
+
 		if self.mType != 'music':
 			#Series
 			self.c.execute("CREATE TABLE Series(s_id INTEGER PRIMARY KEY, series_name text UNIQUE)")
 			self.conn.commit()
-
-		#Items
-		self.c.execute("CREATE TABLE Items(i_id INTEGER PRIMARY KEY, title text, favorite integer DEFAULT 0, unused integer, fs_id integer DEFAULT 0, FOREIGN KEY(fs_id) REFERENCES Series(s_id))")
-		self.conn.commit()
+			self.c.execute("ALTER TABLE Items ADD COLUMN fs_id integer DEFAULT 0 REFERENCES Series(s_id)")
+			self.conn.commit()
 
 		if self.mType != 'movie':
-			self.c.execute("CREATE TABLE Authors(a_id INTEGER PRIMARY KEY, name text")
-			self.c.execute("ALTER TABLE Items ADD COLUMN fa_id {integer} DEFAULT {0}, FOREIGN KEY(fa_id) REFERENECES Authors(a_id)")
+			self.c.execute("CREATE TABLE Authors(a_id INTEGER PRIMARY KEY, name text)")
+			self.conn.commit()
+			self.c.execute("ALTER TABLE Items ADD COLUMN fa_id integer DEFAULT 0 REFERENCES Authors(a_id)")
 			self.conn.commit()
 
 		#Genres

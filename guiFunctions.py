@@ -84,7 +84,7 @@ class AppManager:
 				self.seriesDict = { s[0]:s[1] for s in series_info }
 			self.seriesDict[""] = 0
 
-		if MEDIATYPE != 'movie':
+		if self.MEDIATYPE != 'movie':
 			self.c.execute("SELECT name, a_id FROM Authors")
 			self.conn.commit()
 			author_info = self.c.fetchall()
@@ -145,7 +145,7 @@ class AppManager:
 
 	def addNewItem(self):
 		self.storedApp = self.theApp
-		self.theApp = AddApp(self,m_id)
+		self.theApp = AddApp(self)
 		self.theApp.master.title("MyMediaDB Add %s Page" % self.MEDIATYPE.capitalize())
 		self.theApp.master.minsize(100,500)
 		self.theApp.master.rowconfigure(0, weight=1)
@@ -154,7 +154,7 @@ class AppManager:
 
 	def makeMainPage(self):
 		if self.storedApp == None:
-			self.theApp = MainApp(self)
+			self.theApp = App(self)
 			self.theApp.master.title("MyMediaDB Main Page")
 			self.theApp.master.minsize(100,500)
 			self.theApp.master.rowconfigure(0, weight=1)

@@ -13,12 +13,13 @@ def makeTclList(mvL):
 	mvStr = ""
 	mSize = len(mvL)
 	mLim = mSize-1
-	for i in range(mSize):
+	i = 0
+	for i in range(0,mSize):
 		mvStr += "{"
 		mvStr += mvL[i]
 		mvStr += "}"
-	if i != mLim:
-		mvStr += " "
+		if i != mLim:
+			mvStr += " "
 	return mvStr
 
 #finds item in list and returns index
@@ -94,7 +95,7 @@ class FormatFrame(ttk.Frame):
 		self.columnconfigure(1, weight=3)
 		self.rowconfigure(0, weight=1)
 		self.frmtlab = ttk.Label(self, text="Format(s):")
-		self.frmtbox = Listbox(self, font=('gothic', 12), height=len(Formats), selectmode="extended", exportselection=0)
+		self.frmtbox = Listbox(self, font=('gothic', 12), height=len(self.Formats), selectmode="extended", exportselection=0)
 		self.popFormats()
 		#self.scrollformats = ttk.Scrollbar(self, orient=VERTICAL, command=self.frmtbox.yview)
 		#self.frmttbox.configure(yscrollcommand=self.scrollformats.set)
@@ -149,7 +150,8 @@ class TitlesFrame(ttk.Frame):
 		self.countlab = ttk.Label(self, textvariable=self.countvar)
 		self.titlelistvar = StringVar()
 		self.titlelistbox = Listbox(self, font=('gothic', 12), height=10, listvariable=self.titlelistvar, exportselection=0)
-		self.popTitles(mvL)
+		self.mvL = mvL
+		self.popTitles()
 		self.scrolltitles = ttk.Scrollbar(self, orient=VERTICAL, command=self.titlelistbox.yview)
 		self.titlelistbox.configure(yscrollcommand=self.scrolltitles.set)
 		self.titlelistbox.grid(column=0, row=0, sticky=N+W+S+E)
@@ -157,15 +159,17 @@ class TitlesFrame(ttk.Frame):
 		self.countlab.grid(column=0, row=1, columnspan=2, sticky=W+E)
 		self.showinfobtn.grid(column=0, row=2, columnspan=2)
         
-	def popTitles(self, mvL):
-		mvStr = makeTclList(mvL)
+	def popTitles(self):
+		mvStr = makeTclList(self.mvL)
 		self.titlelistvar.set(mvStr) 
 		countstring = " results displayed"
-		countint = str(len(mvL))
+		countint = str(len(self.mvL))
 		countstring = countint + countstring
 		self.countvar.set(countstring)
             
 	def getSelected(self):
+		if len(self.mvL) == 0:
+			return None
 		titleind = self.titlelistbox.curselection()
 		#print(titleind[0])
 		title = self.titlelistbox.get(titleind[0])
@@ -730,7 +734,12 @@ class AddApp(ttk.Frame):
 			return
 		#FIXME: add messagebox.askyesnocancel + handler: yes: continue, no: return, cancel: __main__() 
 		#may need to be tkMessagebox
-		doubleCheck = messagebox(type=messagebox.YESNOCANCEL, default=messagebox.NO, icon=messagebox.QUESTION, message="Do you want to add this item?", parent=self)
+		#doubleCheck = messagebox(type=tkMessageBox.YESNOCANCEL, default=tkMessageBox.NO, icon=tkMessageBox.QUESTION, message="Do you want to add this item?", parent=self)
+		doubleCheck = messagebox.askyesnocancel(default=messagebox.NO, message="Do you want to add this item? \n If not, select 'No' to return to main menu \n or 'Cancel' to continue editing", parent=self)
+		if doubleCheck == "no":
+			self.caller.makeMainPage()
+		elif doubleCheck == "cancel":
+			return
 		fmtindex = self.frmtframe.frmtbox.curselection()
 		if len(fmtindex) == 0:
 			messagebox.showerror(message=errmsg)

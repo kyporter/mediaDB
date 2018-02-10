@@ -53,7 +53,7 @@ class GetInfoWindow(ttk.Frame):
 		#self.gm.destroy()
 
 
-
+#FIXME: unwatched => unused
 
 
 def Run():
