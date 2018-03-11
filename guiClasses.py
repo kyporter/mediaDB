@@ -333,7 +333,10 @@ class App(ttk.Frame):
 		self.genreframe.g1box.bind("<<ComboboxSelected>>", self.updateTitleList)
 		self.genreframe.g2box.bind("<<ComboboxSelected>>", self.updateTitleList)
 		self.genreframe.g3box.bind("<<ComboboxSelected>>", self.updateTitleList)
-		self.srsframe.srsbox.bind("<<ComboboxSelected>>", self.updateTitleList)
+		if not self.caller.isMusic():
+			self.srsframe.srsbox.bind("<<ComboboxSelected>>", self.updateTitleList)
+		if not self.caller.isMovie():
+			self.authframe.authbox.bind("<<ComboboxSelected>>", self.updateTitleList)
 		self.frmtframe.frmtbox.bind("<<ListboxSelect>>", self.updateTitleList)
 		self.tlistframe.titlelistbox.bind("<<ListboxSelect>>", self.titleAction)
 		self.chkbxframe.unwbox.configure(command=self.updateTitleList)
@@ -573,7 +576,7 @@ class App(ttk.Frame):
 					searchString += " OR"
 				else:
 					searchString += ")"
-		#print(searchString)
+		print(searchString)
 		self.cur.execute(searchString)
 		self.conn.commit()
 		results = self.cur.fetchall()
@@ -711,9 +714,10 @@ class GenreListFrame(ttk.Frame):
 		self.cur.execute("INSERT INTO Genres(genre_name) Values(?)", (newGenre,))
 		self.cur.execute("SELECT g_id FROM Genres WHERE genre_name=?", (newGenre,))
 		self.conn.commit()
-		gID = self.cur.fetchone()
-		self.deity.genreDict[newGenre] = gID
-		#print(newGenre)
+		gIDtuple = self.cur.fetchone()
+		if gIDtuple != None:
+			self.deity.genreDict[newGenre] = gIDtuple[0]
+		print(newGenre)
 		self.deity.updateGenreList()
 		self.popGenres()
         

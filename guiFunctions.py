@@ -1,3 +1,4 @@
+import platform
 from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
@@ -36,12 +37,20 @@ class AppManager:
 		self.makeDicts()
 		#FIXME? self.makeMainPage()
 		self.theStyle = ttk.Style()
-		self.theStyle.theme_use('classic')
-		self.theStyle.configure('.', font=('gothic', 12))
+		self.checkOS()
 		self.theStyle.configure('.', foreground='#1c4363', background='#ffedcc')
 		self.theStyle.configure('InfoFrame.TFrame', foreground='#bdf4ef', background='#bdf4ef')
 		self.theStyle.configure('InfoFrame.TLabel', foreground='#000000', background='#bdf4ef')
 		self.theStyle.configure('InfoFrame.TButton', foreground='#bdf4ef', background='#0b413d')
+
+
+	def checkOS(self):
+		localSys = platform.system()
+		if localSys == 'Windows':
+			self.theStyle.configure('.', font=('Palatino Linotype', 12))
+		else:
+			self.theStyle.configure('.', font=('gothic', 12))
+		self.theStyle.theme_use('classic')
 
 
 	def startConnection(self):
