@@ -1,6 +1,6 @@
 import platform
 from tkinter import *
-from tkinter import ttk
+from tkinter import ttk, font
 from tkinter import messagebox
 from makeMediaDB import *
 from guiClasses import *
@@ -35,7 +35,6 @@ class AppManager:
 		self.storedInfo = None
 		self.startConnection()
 		self.makeDicts()
-		#FIXME? self.makeMainPage()
 		self.theStyle = ttk.Style()
 		self.checkOS()
 		self.theStyle.configure('.', foreground='#1c4363', background='#ffedcc')
@@ -43,14 +42,16 @@ class AppManager:
 		self.theStyle.configure('InfoFrame.TLabel', foreground='#000000', background='#bdf4ef')
 		self.theStyle.configure('InfoFrame.TButton', foreground='#bdf4ef', background='#0b413d')
 
-
 	def checkOS(self):
 		localSys = platform.system()
 		if localSys == 'Windows':
-			self.theStyle.configure('.', font=('Palatino Linotype', 12))
+			self.theStyle.configure('.', font=('Palatino Linotype', 14))
+			self.entryFont = font.Font(family="Palatino Linotype", size=14)
+			self.theStyle.theme_use('classic')
 		else:
-			self.theStyle.configure('.', font=('gothic', 12))
-		self.theStyle.theme_use('classic')
+			self.theStyle.configure('.', font=('bitstream charter', 14))
+			self.entryFont = font.Font(family="Bitstream Charter", size=14)
+			self.theStyle.theme_use('default') #Linux options: clam, alt, default, classic
 
 
 	def startConnection(self):
@@ -164,6 +165,7 @@ class AppManager:
 	def makeMainPage(self):
 		if self.storedInfo == None:
 			self.theApp = App(self)
+			self.theApp.master.option_add("*Font", self.entryFont)
 			self.theApp.master.title("MyMediaDB Main Page")
 			self.theApp.master.minsize(100,500)
 			self.theApp.master.rowconfigure(0, weight=1)

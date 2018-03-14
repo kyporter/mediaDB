@@ -1,5 +1,5 @@
 from tkinter import *
-from tkinter import ttk
+from tkinter import ttk, font
 from tkinter import messagebox
 from makeMediaDB import *
 import guiFunctions as gF
@@ -7,6 +7,15 @@ import random
 
 #used for displayInfo
 displayUnused = {'movie': "This video hasn't been watched yet!", 'book': "This hasn't been read yet!", 'music': "This hasn't been listened to yet!"}
+
+entryYPad = 10
+entryXPad = 10
+#FIXME labelXPad = 10
+comboBoxYPad = 10
+checkButtonYPad = 5
+checkButtonXPad = 5
+#FIXME buttonYPad = 5
+#FIXME buttonXPad = 5
 
 #makes TCL-parseable list from regular list
 def makeTclList(mvL):
@@ -54,9 +63,9 @@ class GenreFrame(ttk.Frame):
 		self.g1lab.grid(column=0, row=0, pady=10)
 		self.g2lab.grid(column=0, row=1, pady=10)
 		self.g3lab.grid(column=0, row=2, pady=10)
-		self.g1box.grid(column=1, row=0, pady=10, sticky=W+E)
-		self.g2box.grid(column=1, row=1, pady=10, sticky=W+E)
-		self.g3box.grid(column=1, row=2, pady=10, sticky=W+E)
+		self.g1box.grid(column=1, row=0, pady=10, ipady=comboBoxYPad, sticky=W+E)
+		self.g2box.grid(column=1, row=1, pady=10, ipady=comboBoxYPad, sticky=W+E)
+		self.g3box.grid(column=1, row=2, pady=10, ipady=comboBoxYPad, sticky=W+E)
 
 #Defines unused and favorite buttons for both main and add/edit pages 
 #vertical=False for main page, True for add/edit
@@ -80,11 +89,11 @@ class CheckbuttonFrame(ttk.Frame):
 		self.favlab.grid(column=0, row=0)   
 		self.favbox.grid(column=1, row=0)
 		if not vertical:
-			self.unwtlab.grid(column=2, row=0)
-			self.unwbox.grid(column=3, row=0)
+			self.unwtlab.grid(column=2, row=0, ipady=checkButtonYPad, ipadx=checkButtonXPad)
+			self.unwbox.grid(column=3, row=0, ipady=checkButtonYPad, ipadx=checkButtonXPad)
 		if vertical:
-			self.unwtlab.grid(column=0, row=1)
-			self.unwbox.grid(column=1, row=1)
+			self.unwtlab.grid(column=0, row=1, ipady=checkButtonYPad, ipadx=checkButtonXPad)
+			self.unwbox.grid(column=1, row=1, ipady=checkButtonYPad, ipadx=checkButtonXPad)
 
 #Defines format display for all pages
 class FormatFrame(ttk.Frame):
@@ -95,7 +104,7 @@ class FormatFrame(ttk.Frame):
 		self.columnconfigure(1, weight=3)
 		self.rowconfigure(0, weight=1)
 		self.frmtlab = ttk.Label(self, text="Format(s):")
-		self.frmtbox = Listbox(self, font=('gothic', 12), height=len(self.Formats), selectmode="extended", exportselection=0)
+		self.frmtbox = Listbox(self, height=len(self.Formats), selectmode="extended", font=parent.caller.entryFont, exportselection=0)
 		self.popFormats()
 		#self.scrollformats = ttk.Scrollbar(self, orient=VERTICAL, command=self.frmtbox.yview)
 		#self.frmttbox.configure(yscrollcommand=self.scrollformats.set)
@@ -116,9 +125,9 @@ class KeywordFrame(ttk.Frame):
 		self.rowconfigure(0, weight=1)
 		self.keyword = StringVar()
 		self.kwdlab = ttk.Label(self, text="Keyword(s):")
-		self.kwdbox = ttk.Entry(self, textvariable=self.keyword)
+		self.kwdbox = ttk.Entry(self, textvariable=self.keyword, font=parent.caller.entryFont)
 		self.kwdlab.grid(column=0, row=0,pady=5)
-		self.kwdbox.grid(column=1, row=0, pady=5, sticky=W+E)
+		self.kwdbox.grid(column=1, row=0, pady=5, ipady=entryYPad, ipadx=entryXPad, sticky=W+E)
 
 #Defines button selections for Main page
 class ButtonFrame(ttk.Frame):
@@ -149,7 +158,7 @@ class TitlesFrame(ttk.Frame):
 		self.countvar = StringVar()
 		self.countlab = ttk.Label(self, textvariable=self.countvar)
 		self.titlelistvar = StringVar()
-		self.titlelistbox = Listbox(self, font=('gothic', 12), height=10, listvariable=self.titlelistvar, exportselection=0)
+		self.titlelistbox = Listbox(self, font=parent.caller.entryFont, height=10, listvariable=self.titlelistvar, exportselection=0)
 		self.mvL = mvL
 		self.popTitles()
 		self.scrolltitles = ttk.Scrollbar(self, orient=VERTICAL, command=self.titlelistbox.yview)
@@ -187,32 +196,32 @@ class InfoFrame(ttk.Frame):
 		self.columnconfigure(1, weight=3)
 		#guaranteed 5 rows: blank, format, genre, watched/fave, ack button
 		self.rows = 5
-		self.formatlab = ttk.Label(self, text="Formats Available:", style='InfoFrame.TLabel')
+		self.formatlab = ttk.Label(self, text="Formats Available:", font=self.caller.entryFont, style='InfoFrame.TLabel')
 		self.formatlistvar = StringVar()
-		self.formatinfo = Listbox(self, bg='#bdf4ef', state=DISABLED, relief=FLAT, font=('gothic', 12), listvariable=self.formatlistvar, exportselection=0)
-		self.genrelab = ttk.Label(self, text="Genres:", style='InfoFrame.TLabel')
+		self.formatinfo = Listbox(self, bg='#bdf4ef', state=DISABLED, relief=FLAT, font=self.caller.entryFont, listvariable=self.formatlistvar, exportselection=0, disabledforeground='#000000')
+		self.genrelab = ttk.Label(self, text="Genres:", font=self.caller.entryFont, style='InfoFrame.TLabel')
 		self.genrelistvar = StringVar()
-		self.genreinfo = Listbox(self, bg='#bdf4ef', state=DISABLED, relief=FLAT, font=('gothic', 12), listvariable=self.genrelistvar, exportselection=0)
+		self.genreinfo = Listbox(self, bg='#bdf4ef', state=DISABLED, relief=FLAT, font=self.caller.entryFont, listvariable=self.genrelistvar, exportselection=0, disabledforeground='#000000')
 		self.ackbut = ttk.Button(self, text="Good to know", command=parent.destroy, style='InfoFrame.TButton')
 		self.favvar = StringVar()
-		self.favLab = ttk.Label(self, textvariable=self.favvar, style='InfoFrame.TLabel')
+		self.favLab = ttk.Label(self, textvariable=self.favvar, font=self.caller.entryFont, style='InfoFrame.TLabel')
 		self.unwvar = StringVar()
-		self.unwLab = ttk.Label(self, textvariable=self.unwvar, style='InfoFrame.TLabel')
+		self.unwLab = ttk.Label(self, textvariable=self.unwvar, font=self.caller.entryFont, style='InfoFrame.TLabel')
 
 		#media-type display decisions
 		self.showseries = False
 		if not self.caller.isMusic():
 			self.showseries = True
-			self.serieslab = ttk.Label(self, text="In Series:", style='InfoFrame.TLabel')
+			self.serieslab = ttk.Label(self, text="In Series:", font=self.caller.entryFont, style='InfoFrame.TLabel')
 			self.seriesvar = StringVar()
-			self.seriesinfo = ttk.Label(self, textvariable=self.seriesvar, style='InfoFrame.TLabel')
+			self.seriesinfo = ttk.Label(self, textvariable=self.seriesvar, font=self.caller.entryFont, style='InfoFrame.TLabel')
 			self.rows += 1
 		self.showauthor = False
 		if not self.caller.isMovie():
 			self.showauthor = True
-			self.authorlab = ttk.Label(self, text="By:", style='InfoFrame.TLabel')
+			self.authorlab = ttk.Label(self, text="By:", font=self.caller.entryFont, style='InfoFrame.TLabel')
 			self.authorvar = StringVar()
-			self.authorinfo = ttk.Label(self, textvariable=self.authorvar, style='InfoFrame.TLabel')
+			self.authorinfo = ttk.Label(self, textvariable=self.authorvar, font=self.caller.entryFont, style='InfoFrame.TLabel')
 			self.rows += 1
 
 		for i in range(0,self.rows):
@@ -279,14 +288,14 @@ class AuthorFrame(ttk.Frame):
 		self.authbox = ttk.Combobox(self, values=self.Authors)
 		self.authbox.state(['readonly'])
 		self.authlab.grid(column=0, row=0, pady=5)
-		self.authbox.grid(column=1, row=0, pady=5, sticky=W+E)
+		self.authbox.grid(column=1, row=0, pady=5, ipady=comboBoxYPad, sticky=W+E)
 		if change:
 			self.rowconfigure(1, weight=1)
 			self.addauthbutton = ttk.Button(self, text="+Author", command=self.addAuthor)
 			self.addauthvar = StringVar()
 			self.addauthbox = ttk.Entry(self, textvariable=self.addauthvar)
 			self.addauthbutton.grid(column=0, row=1, pady=5)
-			self.addauthbox.grid(column=1, row=1, pady=5, sticky=W+E)
+			self.addauthbox.grid(column=1, row=1, pady=5,  ipady=entryYPad, ipadx=entryXPad, sticky=W+E)
         
 	def addAuthor(self):
 		newAuthor = self.addauthbox.get()
@@ -385,11 +394,11 @@ class App(ttk.Frame):
 
 		if not self.caller.isMusic():
 			self.srsframe = SeriesFrame(self)
-			self.srsframe.grid(column=0, row=i, sticky=N+W+S+E)
+			self.srsframe.grid(column=0, row=i, padx=5, sticky=N+W+S+E)
 			i += 1
 		if not self.caller.isMovie():
 			self.authframe = AuthorFrame(self)
-			self.authframe.grid(column=0, row=i, sticky=N+W+S+E)
+			self.authframe.grid(column=0, row=i, padx=5, sticky=N+W+S+E)
 			i += 1
 
 		self.chkbxframe = CheckbuttonFrame(self)
@@ -610,7 +619,7 @@ class AddTitleFrame(ttk.Frame):
 		self.titlevar = StringVar()
 		self.tbox = ttk.Entry(self, width=40, textvariable=self.titlevar)
 		self.tlab.grid(column=0, row=0)
-		self.tbox.grid(column=1, row=0, sticky=W+E)
+		self.tbox.grid(column=1, row=0,  ipady=entryYPad, ipadx=entryXPad, sticky=W+E)
 		if edit:
 			self.rowconfigure(1, weight=1)
 			self.edbut = ttk.Button(self, text="Edit Title", command=self.editTitle)
@@ -636,14 +645,14 @@ class SeriesFrame(ttk.Frame):
 		self.srsbox = ttk.Combobox(self, values=self.Series)
 		self.srsbox.state(['readonly'])
 		self.srslab.grid(column=0, row=0, pady=5)
-		self.srsbox.grid(column=1, row=0, pady=5, sticky=W+E)
+		self.srsbox.grid(column=1, row=0, pady=5, ipady=comboBoxYPad, sticky=W+E)
 		if change:
 			self.rowconfigure(1, weight=1)
 			self.addsrsbutton = ttk.Button(self, text="+Series", command=self.addSeries)
 			self.addsrsvar = StringVar()
 			self.addsrsbox = ttk.Entry(self, textvariable=self.addsrsvar)
 			self.addsrsbutton.grid(column=0, row=1, pady=5)
-			self.addsrsbox.grid(column=1, row=1, pady=5, sticky=W+E)
+			self.addsrsbox.grid(column=1, row=1, pady=5, ipady=entryYPad, ipadx=entryXPad, sticky=W+E)
 
 	def addSeries(self):
 		newSeries = self.addsrsbox.get()
@@ -693,7 +702,7 @@ class GenreListFrame(ttk.Frame):
 		self.ngnvar = StringVar()
 		self.ngnbox = ttk.Entry(self, textvariable=self.ngnvar)
 		self.addngnbutton = ttk.Button(self, text="+Genre", command=self.updateGenres)
-		self.ngnbox.grid(column=1, row=2, pady=5, columnspan=2, sticky=W+E)
+		self.ngnbox.grid(column=1, row=2, pady=5, columnspan=2, ipady=entryYPad, ipadx=entryXPad, sticky=W+E)
 		self.addngnbutton.grid(column=0, row=2, pady=5)
 
 	def updateGenres(self):
@@ -755,10 +764,10 @@ class AddApp(ttk.Frame):
 		self.frmtframe.grid(column=0, row=3, rowspan=2, sticky=N+W+S+E)
 		if not self.caller.isMusic():
 			self.srsframe = SeriesFrame(self, True)
-			self.srsframe.grid(column=1, row=3, sticky=N+W+S+E)
+			self.srsframe.grid(column=1, row=3, padx=5, sticky=N+W+S+E)
 		if not self.caller.isMovie():	
 			self.authframe = AuthorFrame(self, True)
-			self.authframe.grid(column=1, row=4, sticky=N+W+S+E)
+			self.authframe.grid(column=1, row=4, padx=5, sticky=N+W+S+E)
 		self.addbtn = ttk.Button(self, text="Update Database Now", command=self.updateDB)
 		self.addbtn.grid(column=0, row=5)
 		self.canclbtn = ttk.Button(self, text="Cancel", command=self.cancel)
@@ -872,11 +881,11 @@ class EditApp(ttk.Frame):
 		if not self.caller.isMusic():
 			self.srsframe = SeriesFrame(self, True)
 			self.setSeries()
-			self.srsframe.grid(column=1, row=3, sticky=N+W+S+E)
+			self.srsframe.grid(column=1, row=3, padx=5, sticky=N+W+S+E)
 		if not self.caller.isMovie():
 			self.authframe = AuthorFrame(self, True)
 			self.setAuthor()
-			self.authframe.grid(column=1, row=4, sticky=N+W+S+E)
+			self.authframe.grid(column=1, row=4, padx=5, sticky=N+W+S+E)
 		self.addbtn = ttk.Button(self, text="Edit Stored Information Now", command=self.updateDB)
 		self.addbtn.grid(column=0, row=5)
 		self.canclbtn = ttk.Button(self, text="Cancel", command=self.cancel)
